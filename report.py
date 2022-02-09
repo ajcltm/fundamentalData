@@ -6,6 +6,8 @@ from tqdm import tqdm
 import pandas as pd
 import re
 
+from parserFormat import reportParserFormat, valueParserFormat
+
 @dataclass
 class ReportRequestParametersDC:
     text:str
@@ -187,33 +189,29 @@ if __name__ == '__main__':
     html = ReportHtml().get_html(consolidatedParams)
     # print('='*100, html, sep='\n')
 
-    parser_format_lst = [r'연\s*결\s*재\s*무\s*상\s*태\s*표\s*', r'연\s*결\s*대\s*차\s*대\s*조\s*표\s*']
+    rp = reportParserFormat()
+    vp = valueParserFormat()
+
+    parser_format_lst = rp.consolidated_balance_sheet
     consolidated_balance_sheet = ReportSearcher(html).get_table(parser_format_lst)
-    parserLst = [r'^자본총계$',r'^[^가-힣]*자\s*본\s*총\s*계\s*', r'^[가나다라마바사아]*[^가-힣]*자\s*본\s*총\s*계\s*']
+    parserLst = vp.equity
     consolidatedEquity = ValueSearcher(consolidated_balance_sheet).get_value(parserLst)
-    parserLst = [r'^부채총계$',r'^[^가-힣]*부\s*채\s*총\s*계\s*', r'^[가나다라마바사아]*[^가-힣]*부\s*채\s*총\s*계\s*']
+    parserLst = vp.liability
     consolidatedliability = ValueSearcher(consolidated_balance_sheet).get_value(parserLst)
 
-    parser_format_lst = [r'연\s*결\s*손\s*익\s*계\s*산\s*서\s*']
+    parser_format_lst = rp.consolidated_income_statement
     consolidated_income_statement = ReportSearcher(html).get_table(parser_format_lst)
-    parserLst = [r'^당\s*기\s*순\s*이\s*익\s*', r'^[^가-힣]*당\s*기\s*순\s*이\s*익\s*', r'^[가나다라마바사아]*[^가-힣]*당\s*기\s*순\s*이\s*익\s*',
-                    r'^당\s*기\s*연\s*결\s*순\s*이\s*익\s*', r'^[^가-힣]*당\s*기\s*연\s*결\s*순\s*이\s*익\s*', r'^[가나다라마바사아]*[^가-힣]*당\s*기\s*연\s*결\s*순\s*이\s*익\s*',
-                    r'^반\s*기\s*순\s*이\s*익\s*', r'^[^가-힣]*반\s*기\s*순\s*이\s*익\s*', r'^[가나다라마바사아]*[^가-힣]*반\s*기\s*순\s*이\s*익\s*',
-                    r'^반\s*기\s*연\s*결\s*순\s*이\s*익\s*', r'^[^가-힣]*반\s*기\s*연\s*결\s*순\s*이\s*익\s*', r'^[가나다라마바사아]*[^가-힣]*반\s*기\s*연\s*결\s*순\s*이\s*익\s*',
-                    r'^분\s*기\s*순\s*이\s*익\s*', r'^[^가-힣]*분\s*기\s*순\s*이\s*익\s*', r'^[가나다라마바사아]*[^가-힣]*분\s*기\s*순\s*이\s*익\s*'
-                    r'^분\s*기\s*연\s*결\s*순\s*이\s*익\s*', r'^[^가-힣]*분\s*기\s*연\s*결\s*순\s*이\s*익\s*', r'^[가나다라마바사아]*[^가-힣]*분\s*기\s*연\s*결\s*순\s*이\s*익\s*',
-                    r'^당\s분\s*기\s*[연\s*결\s]*순\s*이\s*익\s*', r'^[^가-힣]*당\s*분\s*기\s*[연\s*결\s]*순\s*이\s*익\s*', r'^[가나다라마바사아]*[^가-힣]*당\s*분\s*기\s*[연\s*결\s]**순\s*이\s*익\s*']
+    parserLst = vp.netIncome
     consolidatedNetIncome = ValueSearcher(consolidated_income_statement).get_value(parserLst)
-    parserLst = [r'매\s*출\s*총\s*이\s*익\s*',r'[^가-힣]*매\s*출\s*총\s*이\s*익\s*', r'^[가나다라마바사아]*[^가-힣]*매\s*출\s*총\s*이\s*익\s*']
+    parserLst = vp.grossProfit
     consolidatedGrossProfit = ValueSearcher(consolidated_income_statement).get_value(parserLst)
-    parserLst = [r'영\s*업\s*이\s*익\s*',r'^[^가-힣]*영\s*업\s*이\s*익\s*', r'^[가나다라마바사아]*[^가-힣]*영\s*업\s*이\s*익\s*']
+    parserLst = vp.operatingProfit
     consolidatedOperatingProfit = ValueSearcher(consolidated_income_statement).get_value(parserLst)
 
 
-    parser_format_lst = [r'연\s*결\s*현\s*금\s*흐\s*름\s*표\s*']
+    parser_format_lst = rp.consolidated_cash_flow_statement
     consolidated_cash_flow_statement = ReportSearcher(html).get_table(parser_format_lst)
-    parserLst = [r'영\s*업\s*활\s*동\s*현\s*금\s*흐\s*름', r'^[^가-힣]*영\s*업\s*활\s*동\s*현\s*금\s*흐\s*름\s*', r'^[가나다라마바사아]*[^가-힣]*영\s*업\s*활\s*동\s*현\s*금\s*흐\s*름\s*',
-                    r'영.*업.*활.*동.*으.*로.*부.*터.*의.*현.*금.*흐.*름.*']
+    parserLst = vp.operatingActivities
     consolidatedOperatingActivities = ValueSearcher(consolidated_cash_flow_statement).get_value(parserLst)
     
     
