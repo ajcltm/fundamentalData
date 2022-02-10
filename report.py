@@ -149,15 +149,13 @@ class ReportSearcher:
         self.html = html
 
     def get_table(self, parser_format_lst):
-        soup = self.html
         for parser in parser_format_lst:
-            print(f'parser : {parser}')
-            string = soup.find_all(string=re.compile(parser))
-            if string:
-                print(string)
-                table_soup = soup.find_all(string=re.compile(parser))[0].find_all_next('table')
-                return table_soup
-        print(f'{parser_format_lst} : None')
+            for p in self.html.find_all('p'):
+                if re.findall(parser, p.get_text()):
+                    print('='*100, p, sep='\n')
+                    tables = p.find_all_next('table')
+                    return tables
+            print(f'{parser_format_lst} : None')
         return None
             
                 
@@ -171,9 +169,9 @@ if __name__ == '__main__':
     import random
     from rceptNoInfo import RceptnoInfo
 
-    parentPath='c:/Users/ajcltm/PycharmProjects' # parent 경로
+    parentPath='c:/Users/user/PycharmProjects' # parent 경로
     sys.path.append(parentPath) # 경로 추가
-    from DataAPI import stockInfo # from 다른 폴더(모듈) import 다른 파일
+    from DataApi import stockInfo # from 다른 폴더(모듈) import 다른 파일
 
     path = Path.home().joinpath('Desktop', 'dataBackUp(211021)')
 
@@ -207,33 +205,43 @@ if __name__ == '__main__':
         rp = reportParserFormat()
         vp = valueParserFormat()
 
-        parser_format_lst = rp.consolidated_balance_sheet
-        consolidated_balance_sheet = ReportSearcher(html).get_table(parser_format_lst)
-        if consolidated_balance_sheet:
-            parserLst = vp.equity
-            consolidatedEquity = ValueSearcher(consolidated_balance_sheet).get_value(parserLst)
-            parserLst = vp.liability
-            consolidatedliability = ValueSearcher(consolidated_balance_sheet).get_value(parserLst)
+        # parser_format_lst = rp.consolidated_balance_sheet
+        # consolidated_balance_sheet = ReportSearcher(html).get_table(parser_format_lst)
+        # if consolidated_balance_sheet:
+        #     parserLst = vp.equity
+        #     consolidatedEquity = ValueSearcher(consolidated_balance_sheet).get_values(parserLst)
+        #     parserLst = vp.liability
+        #     consolidatedliability = ValueSearcher(consolidated_balance_sheet).get_values(parserLst)
 
-        parser_format_lst = rp.consolidated_income_statement
+        # parser_format_lst = rp.consolidated_income_statement
+        # consolidated_income_statement = ReportSearcher(html).get_table(parser_format_lst)
+        # if consolidated_income_statement:
+        #     parserLst = vp.netIncome
+        #     consolidatedNetIncome = ValueSearcher(consolidated_income_statement).get_values(parserLst)
+        #     parserLst = vp.grossProfit
+        #     consolidatedGrossProfit = ValueSearcher(consolidated_income_statement).get_values(parserLst)
+        #     parserLst = vp.operatingProfit
+        #     consolidatedOperatingProfit = ValueSearcher(consolidated_income_statement).get_values(parserLst)
+
+
+        parser_format_lst = rp.consolidated_conprehensive_income_statement
         consolidated_income_statement = ReportSearcher(html).get_table(parser_format_lst)
         if consolidated_income_statement:
             parserLst = vp.netIncome
-            consolidatedNetIncome = ValueSearcher(consolidated_income_statement).get_value(parserLst)
+            consolidatedNetIncome = ValueSearcher(consolidated_income_statement).get_values(parserLst)
             parserLst = vp.grossProfit
-            consolidatedGrossProfit = ValueSearcher(consolidated_income_statement).get_value(parserLst)
+            consolidatedGrossProfit = ValueSearcher(consolidated_income_statement).get_values(parserLst)
             parserLst = vp.operatingProfit
-            consolidatedOperatingProfit = ValueSearcher(consolidated_income_statement).get_value(parserLst)
+            consolidatedOperatingProfit = ValueSearcher(consolidated_income_statement).get_values(parserLst)
 
-
-        parser_format_lst = rp.consolidated_cash_flow_statement
-        consolidated_cash_flow_statement = ReportSearcher(html).get_table(parser_format_lst)
-        if consolidated_cash_flow_statement:
-            parserLst = vp.operatingActivities
-            consolidatedOperatingActivities = ValueSearcher(consolidated_cash_flow_statement).get_value(parserLst)
+        # parser_format_lst = rp.consolidated_cash_flow_statement
+        # consolidated_cash_flow_statement = ReportSearcher(html).get_table(parser_format_lst)
+        # if consolidated_cash_flow_statement:
+        #     parserLst = vp.operatingActivities
+        #     consolidatedOperatingActivities = ValueSearcher(consolidated_cash_flow_statement).get_values(parserLst)
     
-    else:
-        print(f"There's no data.")
+    # else:
+    #     print(f"There's no data.")
     # for parser in parserLst:
     #     value = table_soup[0].find_all('p', re.compile(parser))
     #     print('='*100, value, sep='\n')
