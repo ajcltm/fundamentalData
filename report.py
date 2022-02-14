@@ -94,16 +94,14 @@ class ReportRequestParametersHandler:
 
     def handle_request(self):
         reportRequestParameters = self.parser.get_report_parameters()
-        print('handler')
         if reportRequestParameters :
-            print('='*100, f'got params', sep='\n')
-            print(reportRequestParameters)
+            print('='*100, f'got the report params : \n {reportRequestParameters}', sep='\n')
             return reportRequestParameters
         elif self.successor is not None:
-            print('='*100, 'successor')
+            print('='*100, 'now taked over successor', sep='\n')
             return self.successor.handle_request()
         else:
-            print('None')
+            print('='*100, 'failed to get params : return None', sep='\n')
             return None
 
 class ReportRequestParametersProvider :
@@ -125,17 +123,16 @@ class ReportRequestParametersProvider :
 class ReportHtml :
 
     def get_html(self, detailReportParameter):
-        print('inner_handler')
         url = f'http://dart.fss.or.kr/report/viewer.do?'
         r = requests.get(url, params=asdict(detailReportParameter[0]))
         html = r.text
         soup = BeautifulSoup(html, 'html.parser')
         table = soup.find_all('table')
         if table :
-            print('got table')
+            print('='*100,'success to get the table with those params', sep='\n')
             return soup
         else:
-            print('None')
+            print('='*100, 'fail to get the report with those params : None', sep='\n')
             return None
         
 
@@ -152,16 +149,16 @@ class ReportSearcher:
         for p in self.html.find_all('p'):
             for parser in parser_format_lst:
                 if re.findall(parser, p.get_text()):
-                    print('='*100, p, sep='\n')
+                    print('='*100, f'the p tag has the {parser} : \n {p}', sep='\n')
                     tables = p.find_all_next('table')
                     return tables
-        for p in self.html.find_all('td'):
+        for td in self.html.find_all('td'):
             for parser in parser_format_lst:
-                if re.findall(parser, p.get_text()):
-                    print('='*100, p, sep='\n')
-                    tables = p.find_all_next('table')
+                if re.findall(parser, td.get_text()):
+                    print('='*100, f'the td tag has the {parser} : \n {td}', sep='\n')
+                    tables = td.find_all_next('table')
                     return tables
-        print('='*100, f'{parser_format_lst[0]} ext ... : None', sep='\n')
+        print('='*100, f'fail to the title of the report : {parser_format_lst[0]} ext ... : None', sep='\n')
         return None
             
                 
@@ -196,11 +193,18 @@ if __name__ == '__main__':
     gen = ri.get_generator(corp_code, start, end)
     lst = list(gen)
     dc = random.choice(lst)
+    receptNo = dc.rcept_no
+
+
+    
+    print('\n \n', '='*150, sep='\n')
 
     print('='*100, dc, sep='\n')
 
-    receptNo = dc.rcept_no
-    receptNo = '20201116001840'
+    # receptNo = '20201116001840'
+    # receptNo = '20100816001298'
+    # receptNo = '20200928000281'
+
     parser_format_1 = r'.*연결재무제표$'
     parser_format_2 = r'.*재무제표 등$'
     consolidatedParams = ReportRequestParametersProvider(receptNo).get_html(parser_format_1, parser_format_2)

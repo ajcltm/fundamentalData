@@ -47,7 +47,7 @@ class ValueSearcher:
             if target_tr_tag:
                 numeric = self.get_numeric(target_tr_tag)
                 if numeric:
-                    print('='*100, f'numeric : {numeric}', sep='\n')
+                    # print('='*100, f'numeric : {numeric}', sep='\n')
                     value = int(numeric.replace(',', ''))
                     print('='*100, f'{self.findedParser} : {value}', sep='\n')
                     return value
@@ -66,13 +66,15 @@ class ValueSearcher:
         return None
 
     def get_numeric(self, tr_tag):
-        descendants = tr_tag.children
-        for d in descendants:
-            try:
-                text = d.get_text()
-                print(text)
-                if re.findall(r'\<.*\>([0-9]+)', text):
-                    return d.contents[0]
-            except:
+        
+        # for string in tr_tag.stripped_strings:
+        #     if re.findall(r'^[0-9]+', string): 
+        #         return string
+        for i, td in enumerate(tr_tag.find_all('td')):
+            if i == 0:
                 pass
+            else:
+                for string in td.stripped_strings:
+                    if re.findall(r'^[0-9]+', string): 
+                        return string
         return None
