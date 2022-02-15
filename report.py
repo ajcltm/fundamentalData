@@ -3,10 +3,20 @@ from dataclasses import dataclass, asdict
 import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+import time
 import pandas as pd
 import re
-
+import random
 from parserFormat import reportParserFormat, valueParserFormat
+
+class RandomSleep:
+
+    def sleep(self):
+        range_option = {'quicker': [0, .5], 'slower': [.5, 2], 'stop': [10, 15]}
+        sleepLevel = random.choices(['quicker', 'slower', 'stop'], weights=[.6, .39, .01])
+        range = range_option.get(sleepLevel[0])
+        if sleepLevel[0] == 'stop' : print('Now taking a rest in a seconds')
+        time.sleep(random.uniform(range[0], range[1]))
 
 @dataclass
 class ReportRequestParametersDC:
@@ -91,36 +101,51 @@ class ReportRequestParametersHandler:
     def __init__(self, parser, successor=None):
         self.parser = parser
         self.successor = successor
+        self.blackBox = ''
 
     def handle_request(self):
         reportRequestParameters = self.parser.get_report_parameters()
         if reportRequestParameters :
-            print('='*100, f'got the report params : \n {reportRequestParameters}', sep='\n')
+            self.blackBox += '\n' + '='*100 + '\n' + f'got the report params : \n {reportRequestParameters}'
+            # print('='*100, f'got the report params : \n {reportRequestParameters}', sep='\n')
             return reportRequestParameters
         elif self.successor is not None:
-            print('='*100, 'now taked over successor', sep='\n')
+            self.blackBox += '\n' + '='*100 + '\n' + 'now taked over successor'
             return self.successor.handle_request()
         else:
-            print('='*100, 'failed to get params : return None', sep='\n')
+            # print('='*100, 'failed to get params : return None', sep='\n')
+            self.blackBox += '\n' + '='*100 + '\n' + 'failed to get params : return None'
             return None
+
+    def print_blackBox(self):
+        print(self.blackBox)
 
 class ReportRequestParametersProvider :
 
     def __init__(self, receptNo):
         self.receptNo = receptNo
+        self.blackBox = ''
 
     def get_html(self, parser_format_1, parser_format_2):
+        RandomSleep().sleep()
         url = f'http://dart.fss.or.kr/dsaf001/main.do?rcpNo={self.receptNo}'
         r = requests.get(url)
         reportHtml = r.text
         parser1 = ReportRequestParametersNode2(reportHtml, parser_format_1)
         parser2 = ReportRequestParametersNode1(reportHtml, parser_format_2)
         successor = ReportRequestParametersHandler(parser2)
-        parameters = ReportRequestParametersHandler(parser1, successor).handle_request()
+        self.blackBox += successor.blackBox
+        rrph = ReportRequestParametersHandler(parser1, successor)
+        parameters = rrph.handle_request()
+        self.blackBox += rrph.blackBox
 
         return parameters
+    
+    def print_blackBox(self):
+        print(self.blackBox)
 
 class ReportHtml :
+    blackBox = ''
 
     def get_html(self, detailReportParameter):
         url = f'http://dart.fss.or.kr/report/viewer.do?'
@@ -129,11 +154,16 @@ class ReportHtml :
         soup = BeautifulSoup(html, 'html.parser')
         table = soup.find_all('table')
         if table :
-            print('='*100,'success to get the table with those params', sep='\n')
+            # print('='*100,'success to get the table with those params', sep='\n')
+            self.blackBox += '\n' + '='*100 + '\n' + f'success to get the table with those params'
             return soup
         else:
-            print('='*100, 'fail to get the report with those params : None', sep='\n')
+            # print('='*100, 'fail to get the report with those params : None', sep='\n')
+            self.blackBox += '\n' + '='*100 + '\n' + f'fail to get the report with those params : None'
             return None
+    
+    def print_blackBox(self):
+        print(self.blackBox)
         
 
 class ReportSearcher:
@@ -144,111 +174,31 @@ class ReportSearcher:
 
     def __init__(self, html):
         self.html = html
+        self.blackBox = ''
 
     def get_table(self, parser_format_lst):
         for p in self.html.find_all('p'):
             for parser in parser_format_lst:
                 if re.findall(parser, p.get_text()):
-                    print('='*100, f'the p tag has the {parser} : \n {p}', sep='\n')
+                    # print('='*100, f'the p tag has the {parser} : \n {p}', sep='\n')
+                    self.blackBox += '\n' + '='*100 + '\n' + f'the p tag has the {parser} : \n {p}'
                     tables = p.find_all_next('table')
                     return tables
         for td in self.html.find_all('td'):
             for parser in parser_format_lst:
                 if re.findall(parser, td.get_text()):
-                    print('='*100, f'the td tag has the {parser} : \n {td}', sep='\n')
+                    # print('='*100, f'the td tag has the {parser} : \n {td}', sep='\n')
+                    self.blackBox += '\n' + '='*100 + '\n' + f'the td tag has the {parser} : \n {td}'
                     tables = td.find_all_next('table')
                     return tables
-        print('='*100, f'fail to the title of the report : {parser_format_lst[0]} ext ... : None', sep='\n')
+        # print('='*100, f'fail to the title of the report : {parser_format_lst[0]} ext ... : None', sep='\n')
+        self.blackBox += '\n' + '='*100 + '\n' + f'fail to the title of the report : {parser_format_lst[0]} ext ... : None'
         return None
-            
-                
 
+    def print_blackBox(self):
+        print(self.blackBox)
+        
 
-if __name__ == '__main__':
-    import sys
-    from values import ValueSearcher
-
-    from pathlib import Path
-    import random
-    from rceptNoInfo import RceptnoInfo
-
-    parentPath='c:/Users/ajcltm/PycharmProjects' # parent 경로
-    sys.path.append(parentPath) # 경로 추가
-    from DataAPI import stockInfo # from 다른 폴더(모듈) import 다른 파일
-
-    path = Path.home().joinpath('Desktop', 'dataBackUp(211021)')
-
-    stockList = pd.read_parquet(path/'stockListDB.parquet')
-    tickers = stockList.ticker.unique().tolist()
-    ticker = random.choice(tickers)
-    commonStockProvider = stockInfo.commonStockProvider()
-    stockinfo = stockInfo.StockInfo(path, commonStockProvider)
-    stockInfoDic = stockinfo.get_stockInfo(ticker)
-    corp_code = stockInfoDic[ticker]['corp_code']
-
-    start = '20100101'
-    end = '20211130'
-
-    ri = RceptnoInfo()
-    gen = ri.get_generator(corp_code, start, end)
-    lst = list(gen)
-    dc = random.choice(lst)
-    receptNo = dc.rcept_no
-
-
-    
-    print('\n \n', '='*150, sep='\n')
-
-    print('='*100, dc, sep='\n')
-
-    # receptNo = '20201116001840'
-    # receptNo = '20100816001298'
-    # receptNo = '20200928000281'
-
-    parser_format_1 = r'.*연결재무제표$'
-    parser_format_2 = r'.*재무제표 등$'
-    consolidatedParams = ReportRequestParametersProvider(receptNo).get_html(parser_format_1, parser_format_2)
-    html = ReportHtml().get_html(consolidatedParams)
-
-    if html :
-
-        rp = reportParserFormat()
-        vp = valueParserFormat()
-
-        parser_format_lst = rp.consolidated_balance_sheet
-        consolidated_balance_sheet = ReportSearcher(html).get_table(parser_format_lst)
-        if consolidated_balance_sheet:
-            parserLst = vp.equity
-            consolidatedEquity = ValueSearcher(consolidated_balance_sheet).get_values(parserLst)
-            parserLst = vp.liability
-            consolidatedliability = ValueSearcher(consolidated_balance_sheet).get_values(parserLst)
-
-        parser_format_lst = rp.consolidated_income_statement
-        consolidated_income_statement = ReportSearcher(html).get_table(parser_format_lst)
-        if consolidated_income_statement:
-            parserLst = vp.netIncome
-            consolidatedNetIncome = ValueSearcher(consolidated_income_statement).get_values(parserLst)
-            parserLst = vp.grossProfit
-            consolidatedGrossProfit = ValueSearcher(consolidated_income_statement).get_values(parserLst)
-            parserLst = vp.operatingProfit
-            consolidatedOperatingProfit = ValueSearcher(consolidated_income_statement).get_values(parserLst)
-
-
-        parser_format_lst = rp.consolidated_conprehensive_income_statement
-        consolidated_income_statement = ReportSearcher(html).get_table(parser_format_lst)
-        if consolidated_income_statement:
-            parserLst = vp.netIncome
-            consolidatedNetIncome = ValueSearcher(consolidated_income_statement).get_values(parserLst)
-            parserLst = vp.grossProfit
-            consolidatedGrossProfit = ValueSearcher(consolidated_income_statement).get_values(parserLst)
-            parserLst = vp.operatingProfit
-            consolidatedOperatingProfit = ValueSearcher(consolidated_income_statement).get_values(parserLst)
-
-        parser_format_lst = rp.consolidated_cash_flow_statement
-        consolidated_cash_flow_statement = ReportSearcher(html).get_table(parser_format_lst)
-        if consolidated_cash_flow_statement:
-            parserLst = vp.operatingActivities
-            consolidatedOperatingActivities = ValueSearcher(consolidated_cash_flow_statement).get_values(parserLst)
     
     # else:
     #     print(f"There's no data.")

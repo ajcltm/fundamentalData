@@ -38,6 +38,7 @@ class ValueSearcher:
         self.table_soup = table_soup
 
         self.findedParser = None
+        self.blackBox = ''
 
 
     def get_values(self, parser_format_lst):
@@ -49,10 +50,15 @@ class ValueSearcher:
                 if numeric:
                     # print('='*100, f'numeric : {numeric}', sep='\n')
                     value = int(numeric.replace(',', ''))
-                    print('='*100, f'{self.findedParser} : {value}', sep='\n')
+                    # print('='*100, f'{self.findedParser} : {value}', sep='\n')
+                    self.blackBox += '\n' + '='*100 + '\n' + f'{self.findedParser} : {value}'
                     return value
-        print('='*100, f'{parser_format_lst[0]} ext... : None', sep='\n')
+        # print('='*100, f'{parser_format_lst[0]} ext... : None', sep='\n')
+        self.blackBox += '\n' + '='*100 + '\n' + f'{parser_format_lst[0]} ext... : None'
         return None
+    
+    def print_blackBox(self):
+        print(self.blackBox)
 
 
     def find_target_tr_tag(self, tr_tags, parser_format_lst):
