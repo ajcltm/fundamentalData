@@ -49,6 +49,9 @@ class ValueSearcher:
                 numeric = self.get_numeric(target_tr_tag)
                 if numeric:
                     # print('='*100, f'numeric : {numeric}', sep='\n')
+                    numeric = numeric.replace(',', '')
+                    numeric = numeric.replace('(', '-')
+                    numeric = numeric.replace(')', '')
                     value = int(numeric.replace(',', ''))
                     # print('='*100, f'{self.findedParser} : {value}', sep='\n')
                     self.blackBox += '\n' + '='*100 + '\n' + f'{self.findedParser} : {value}'
@@ -59,7 +62,6 @@ class ValueSearcher:
     
     def print_blackBox(self):
         print(self.blackBox)
-
 
     def find_target_tr_tag(self, tr_tags, parser_format_lst):
         for tr_tag in tr_tags:
@@ -81,6 +83,17 @@ class ValueSearcher:
                 pass
             else:
                 for string in td.stripped_strings:
-                    if re.findall(r'^[0-9]+', string): 
+                    if re.findall(r'^\(*[0-9]+', string): 
+                        return string
+        return None
+
+    def get_unit(self, tr_tag):
+
+        for i, td in enumerate(tr_tag.find_all('td')):
+            if i == 0:
+                pass
+            else:
+                for string in td.stripped_strings:
+                    if re.findall(r'단위 : ([])', string): 
                         return string
         return None

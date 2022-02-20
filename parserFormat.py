@@ -18,10 +18,10 @@ class reportParserFormat:
         self.consolidated_conprehensive_income_statement = [r'연\s*결\s포\s*괄\s*손\s*익\s*계\s*산\s*서\s*', r'연.*결.포.*괄.*손.*익.*계.*산.*서.*'] #r'포.*괄.*'
         self.consolidated_cash_flow_statement = [r'연\s*결\s*현\s*금\s*흐\s*름\s*표\s*']
 
-        self.nonConsolidated_balance_sheet : list() = [r'^[^가-힣]*재\s*무\s*상\s*태\s*표\s*', r'^[가나다라마바사아]*[^가-힣]*재\s*무\s*상\s*태\s*표\s*', r'^[^가-힣]*대\s*차\s*대\s*조\s*표\s*']
-        self.nonConsolidated_income_statement : list() = [r'^[^가-힣]*손\s*익\s*계\s*산\s*서\s*', r'^[가나다라마바사아]*[^가-힣]*손\s*익\s*계\s*산\s*서\s*']
-        self.nonConsolidated_conprehensive_income_statement : list() = [r'^[^가-힣]*포\s*괄\s*손\s*익\s*계\s*산\s*서\s*', r'^[가나다라마바사아]*[^가-힣]*포\s*괄\s*손\s*익\s*계\s*산\s*서\s*']
-        self.nonConsolidated_cash_flow_statement : list() = [r'^[^가-힣]*현\s*금\s*흐\s*름\s*표\s*', r'^[가나다라마바사아]*[^가-힣]*현\s*금\s*흐\s*름\s*표\s*']
+        self.nonConsolidated_balance_sheet : list() = [r'^[^연]*[^결]*재\s*무\s*상\s*태\s*표\s*', r'^[가나다라마바사아]*[^가-힣]*재\s*무\s*상\s*태\s*표\s*', r'^[^가-힣]*대\s*차\s*대\s*조\s*표\s*']
+        self.nonConsolidated_income_statement : list() = [r'^[^연결포괄]*손\s*익\s*계\s*산\s*서\s*', r'^[가나다라마바사아]*[^가-힣]*손\s*익\s*계\s*산\s*서\s*']
+        self.nonConsolidated_conprehensive_income_statement : list() = [r'^[^연결]*포\s*괄\s*손\s*익\s*계\s*산\s*서\s*', r'^[가나다라마바사아]*[^가-힣]*포\s*괄\s*손\s*익\s*계\s*산\s*서\s*']
+        self.nonConsolidated_cash_flow_statement : list() = [r'^[^연결]*현\s*금\s*흐\s*름\s*표\s*', r'^[가나다라마바사아]*[^가-힣]*현\s*금\s*흐\s*름\s*표\s*']
 
 
 @dataclass
