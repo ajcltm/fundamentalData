@@ -21,6 +21,11 @@ class FundamentalData:
         self.ncfd = nonConsolidatedData.NonConsolidatedData(receptNo)
         self.blackBox = ""
 
+        self.consolidatedData = self.get_consolidatedData()
+        self.nonConsolidatedData = self.get_nonConsolidatedData()
+        self.consolidatedHtml = self.get_consolidatedHtml()
+        self.nonConsolidatedHtml = self.get_nonConsolidatedHtml()
+
     def get_consolidatedData(self):
 
         data = self.cfd.get_data()
@@ -87,16 +92,10 @@ if __name__=='__main__':
 
     receptNos = ['20201116001840', '20100816001298', '20200928000281', '20180515001679']
 
-    receptNo = '20210309000744'
-    fd = FundamentalData(receptNo)
-    c_data = fd.get_consolidatedData()
-    c_html = fd.get_consolidatedHtml()
+    for receptNo in receptNos:
+        fd = FundamentalData(receptNo)
+        print(fd.blackBox)
+        print(fd.consolidatedData)
+        print(fd.nonConsolidatedData)
 
-    nc_data = fd.get_nonConsolidatedData()
-    nc_html = fd.get_nonConsolidatedHtml()
-    fd.print_blackBox()
-    print(c_data)
-    print(nc_data)
-    # print(c_html)
-    # print(nc_html)
 

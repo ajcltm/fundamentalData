@@ -72,7 +72,6 @@ class ConsolidatedData:
 
             if consolidated_balance_sheet:
                 unit = get_unit(html, parser_format_lst)
-                print('='*100, f'unit : {unit}', sep='\n')
 
                 vs = values.ValueSearcher(consolidated_balance_sheet)
 

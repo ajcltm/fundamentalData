@@ -72,7 +72,6 @@ class NonConsolidatedData:
 
             if nonConsolidated_balance_sheet:
                 unit = get_unit(html, parser_format_lst)
-                print('='*100, f'unit : {unit}', sep='\n')
 
                 vs = values.ValueSearcher(nonConsolidated_balance_sheet)
 
@@ -98,7 +97,6 @@ class NonConsolidatedData:
             self.blackBox += rs.blackBox
             if nonConsolidated_income_statement:
                 unit = get_unit(html, parser_format_lst)
-                print('='*100, f'unit : {unit}', sep='\n')
 
                 vs = values.ValueSearcher(nonConsolidated_income_statement)
 
@@ -133,7 +131,6 @@ class NonConsolidatedData:
             self.blackBox += rs.blackBox
             if nonConsolidated_income_statement:
                 unit = get_unit(html, parser_format_lst)
-                print('='*100, f'unit : {unit}', sep='\n')
 
                 vs = values.ValueSearcher(nonConsolidated_income_statement)
 
@@ -165,7 +162,6 @@ class NonConsolidatedData:
             self.blackBox += rs.blackBox
             if nonConsolidated_cash_flow_statement:
                 unit = get_unit(html, parser_format_lst)
-                print('='*100, f'unit : {unit}', sep='\n')
 
                 vs = values.ValueSearcher(nonConsolidated_cash_flow_statement)
                 parserLst = vp.operatingActivities
