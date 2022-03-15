@@ -1,7 +1,8 @@
 import report
 import values
 import parserFormat
-from dataclasses import dataclass
+from pydantic import BaseModel
+from typing import Optional, Any
 
 import re
 
@@ -19,23 +20,21 @@ def get_unit(soup, parser_format_lst):
     unit = 1
     return unit
 
-@dataclass
-class HtmlDC:
+class HtmlDC(BaseModel):
     receptNo:str
-    html:str
+    html:Optional[Any]
 
-@dataclass
-class NonConsolidatedDataDC:
+class NonConsolidatedDataDC(BaseModel):
     receptNo:str
-    nonConsolidatedEquity:int
-    nonConsolidatedliability:int
-    nonConsolidatedNetIncome:int
-    nonConsolidatedGrossProfit:int
-    nonConsolidatedOperatingProfit:int
-    nonConsolidatedConprehensiveNetIncome:int
-    nonConsolidatedConprehensiveGrossProfit:int
-    nonConsolidatedConprehensiveOperatingProfit:int
-    nonConsolidatedOperatingActivities:int
+    nonConsolidatedEquity:Optional[int]
+    nonConsolidatedliability:Optional[int]
+    nonConsolidatedNetIncome:Optional[int]
+    nonConsolidatedGrossProfit:Optional[int]
+    nonConsolidatedOperatingProfit:Optional[int]
+    nonConsolidatedConprehensiveNetIncome:Optional[int]
+    nonConsolidatedConprehensiveGrossProfit:Optional[int]
+    nonConsolidatedConprehensiveOperatingProfit:Optional[int]
+    nonConsolidatedOperatingActivities:Optional[int]
 
 class NonConsolidatedData:
 
@@ -54,7 +53,7 @@ class NonConsolidatedData:
         self.html = rh.get_html(consolidatedParams)
         if record == True:
             self.blackBox += rh.blackBox
-        return HtmlDC(self.receptNo, self.html)
+        return HtmlDC(receptNo=self.receptNo, html=self.html)
 
     def get_data(self):
 
@@ -176,20 +175,29 @@ class NonConsolidatedData:
                 nonConsolidatedOperatingActivities = None
         
             return NonConsolidatedDataDC(
-                self.receptNo,
-                nonConsolidatedEquity,
-                nonConsolidatedliability,
-                nonConsolidatedNetIncome,
-                nonConsolidatedGrossProfit,
-                nonConsolidatedOperatingProfit,
-                nonConsolidatedConprehensiveNetIncome,
-                nonConsolidatedConprehensiveGrossProfit,
-                nonConsolidatedConprehensiveOperatingProfit,
-                nonConsolidatedOperatingActivities
+                receptNo=self.receptNo,
+                nonConsolidatedEquity=nonConsolidatedEquity,
+                nonConsolidatedliability=nonConsolidatedliability,
+                nonConsolidatedNetIncome=nonConsolidatedNetIncome,
+                nonConsolidatedGrossProfit=nonConsolidatedGrossProfit,
+                nonConsolidatedOperatingProfit=nonConsolidatedOperatingProfit,
+                nonConsolidatedConprehensiveNetIncome=nonConsolidatedConprehensiveNetIncome,
+                nonConsolidatedConprehensiveGrossProfit=nonConsolidatedConprehensiveGrossProfit,
+                nonConsolidatedConprehensiveOperatingProfit=nonConsolidatedConprehensiveOperatingProfit,
+                nonConsolidatedOperatingActivities=nonConsolidatedOperatingActivities
         )
         else : 
-            return NonConsolidatedDataDC(self.receptNo, None, None, None, None, None, None, None, None, None)
-
+            return NonConsolidatedDataDC(receptNo=self.receptNo,
+                nonConsolidatedEquity=None,
+                nonConsolidatedliability=None,
+                nonConsolidatedNetIncome=None,
+                nonConsolidatedGrossProfit=None,
+                nonConsolidatedOperatingProfit=None,
+                nonConsolidatedConprehensiveNetIncome=None,
+                nonConsolidatedConprehensiveGrossProfit=None,
+                nonConsolidatedConprehensiveOperatingProfit=None,
+                nonConsolidatedOperatingActivities=None
+        )
     def print_blackBox(self):
         print(self.blackBox)
 
