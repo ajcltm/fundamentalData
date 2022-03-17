@@ -10,6 +10,41 @@ class CreateTable:
     def operate(self):
         pass
 
+class CorpCodeTable(CreateTable):
+
+    def operate(self):
+        
+        sql = "CREATE TABLE IF NOT EXISTS corpCode(\
+                corp_code VARCHAR(8),\
+                corp_name VARCHAR(100),\
+                stock_code VARCHAR(6),\
+                modify_date TIMESTAMP\
+            )"
+        
+        self.db.cursor().execute(sql)
+        self.db.commit()
+
+class RceptNoInfoTable(CreateTable):
+
+    def operate(self):
+        
+        sql = "CREATE TABLE IF NOT EXISTS rceptNoInfo(\
+                corp_code VARCHAR(8),\
+                corp_name VARCHAR(20),\
+                stock_code VARCHAR(6),\
+                corp_cls VARCHAR(5),\
+                report_nm VARCHAR(50),\
+                rcept_no VARCHAR(14),\
+                flr_nm VARCHAR(20),\
+                rcept_dt VARCHAR(8),\
+                rm VARCHAR(20),\
+                add_info VARCHAR(20),\
+                kind VARCHAR(20),\
+                date TIMESTAMP\
+            )"
+        
+        self.db.cursor().execute(sql)
+        self.db.commit()
 
 class ConsolidatedDataTable(CreateTable) :
 
@@ -80,6 +115,8 @@ class NonConsolidatedReportTable(CreateTable) :
 def main():
     dbName = 'fundamentalData'
     db = Connector().connect_db(dbName)
+    CorpCodeTable(db).operate()
+    RceptNoInfoTable(db).operate()
     ConsolidatedDataTable(db).operate()
     NonConsolidatedDataTable(db).operate()
     ConsolidatedReportTable(db).operate()

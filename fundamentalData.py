@@ -73,11 +73,11 @@ if __name__=='__main__':
     # start = '20100101'
     # end = '20211130'
 
-    # ri = RceptnoInfo()
+    # ri = RceptNoInfoProvider()
     # gen = ri.get_generator(corp_code, start, end)
     # lst = list(gen)
     # dc = random.choice(lst)
-    # receptNo = dc.rcept_no
+    # rceptNo = dc.rcept_no
 
 
     
@@ -85,15 +85,15 @@ if __name__=='__main__':
 
     # print('='*100, dc, sep='\n')
 
-    # receptNo = '20201116001840'
-    # receptNo = '20100816001298'
-    # receptNo = '20200928000281'
-    # receptNo = '20180515001679'
+    # rceptNo = '20201116001840'
+    # rceptNo = '20100816001298'
+    # rceptNo = '20200928000281'
+    # rceptNo = '20180515001679'
 
-    receptNos = ['20201116001840', '20100816001298', '20200928000281', '20180515001679']
+    rceptNos = ['20201116001840', '20100816001298', '20200928000281', '20180515001679']
 
-    for receptNo in receptNos:
-        fd = FundamentalData(receptNo)
+    for rceptNo in rceptNos:
+        fd = FundamentalData(rceptNo)
         print(fd.blackBox)
         print(fd.consolidatedData)
         print(fd.nonConsolidatedData)

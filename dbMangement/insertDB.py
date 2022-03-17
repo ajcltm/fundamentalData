@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from dataclasses import asdict
 from datetime import datetime
 
 class InsertData:
@@ -11,6 +10,26 @@ class InsertData:
     def operate(self, data):
         pass
 
+class Insert_corpCode(InsertData):
+
+    def operate(self, data):
+        values_part = formatter().get_values_part(data)
+        sql = f"insert into corpCode values ({values_part})"
+        try:
+            self.db.cursor().execute(sql)
+        except :
+            print(sql)
+            raise Exception()
+        self.db.commit()
+
+class Insert_RceptNoInfo(InsertData):
+
+    def operate(self, data):
+        values_part = formatter().get_values_part(data)
+        sql = f"insert into RceptNoInfo values ({values_part})"
+        print(sql)
+        self.db.cursor().execute(sql)
+        self.db.commit()
 
 class Insert_ConsolidatedData(InsertData):
 
@@ -27,7 +46,7 @@ class Insert_NonConsolidatedData(InsertData):
         values_part = formatter().get_values_part(data)
         sql = f"insert into NonConsolidatedData values\
                 ({values_part})"
-                 
+        print(sql)
         self.db.cursor().execute(sql)
         self.db.commit()
 
@@ -37,7 +56,7 @@ class Insert_ConsolidatedReport(InsertData):
         values_part = formatter().get_values_part(data)
         sql = f"insert into ConsolidatedReport values\
                 ({values_part})"
-                 
+        print(sql)
         self.db.cursor().execute(sql)
         self.db.commit()
 
@@ -48,7 +67,7 @@ class Insert_NonConsolidatedReport(InsertData):
         values_part = formatter().get_values_part(data)
         sql = f"insert into NonConsolidatedReport values\
                 ({values_part})"
-                 
+        print(sql)
         self.db.cursor().execute(sql)
         self.db.commit()
 

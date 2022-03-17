@@ -1,7 +1,9 @@
 import abc
-from dataclasses import dataclass, field
+from pydantic import BaseModel, validator
+from typing import Optional
 import re
 import requests
+from datetime import datetime
 
 
 
@@ -78,8 +80,8 @@ class RequesterF(RequesterAF):      # url requester to get recptNoInfo which of 
     def operation(self):
         return requests.get(self.url, self.paramsDict)
 
-@dataclass      # RepctNoInfo dataclass
-class RepctNoInfo:
+
+class RceptNoInfo(BaseModel):
     corp_code:str       # ex. '00126380'
     corp_name:str       # ex. '삼성전자'
     stock_code:str      # ex. '005930'
@@ -89,19 +91,33 @@ class RepctNoInfo:
     flr_nm:str          # ex. '삼성전자'
     rcept_dt:str        # ex. '20210817'
     rm:str              # ex. '연'
-    add_info:str=field(default=None)    # created by __post_init__  , ex. '첨부추가'
-    kind:str=field(default=None)    # created by __post_init__ , ex. '사업보고서', or '분기보고서' etc
-    date:str=field(default=None)    # created by __post_init__ , ex. '2009.12'
+    add_info:Optional[str]    # created by __post_init__  , ex. '첨부추가'
+    kind:Optional[str]   # created by __post_init__ , ex. '사업보고서', or '분기보고서' etc
+    date:Optional[datetime]    # created by __post_init__ , ex. '2009.12'
 
-    def __post_init__(self):
+
+    @validator('add_info', always=True)
+    def get_add_info(cls, v, values):
         parser = r'\[?(\w*)\]?(사업보고서|반기보고서|분기보고서|감사보고서|연결감사보고서).*\((\d{4}\.\d{2})\)'
         # var parser is divided into 3 group which are (\w*), (사업보고서|반기보고서|...) and (\d{4}\.\d{2}). (respectively add_info, kind and date)
-        re_lst = re.findall(parser, self.report_nm)[0]      # re_lst like... -> [('', '분기보고서', '2010.09')]
-        self.add_info = re_lst[0]
-        self.kind = re_lst[1]
-        self.date = re_lst[2]
+        re_lst = re.findall(parser, values['report_nm'])[0]      # re_lst like... -> [('', '분기보고서', '2010.09')]
+        return re_lst[0]
 
-class RceptnoInfo:      # client class
+    @validator('kind', always=True)
+    def get_kind(cls, v, values):
+        parser = r'\[?(\w*)\]?(사업보고서|반기보고서|분기보고서|감사보고서|연결감사보고서).*\((\d{4}\.\d{2})\)'
+        # var parser is divided into 3 group which are (\w*), (사업보고서|반기보고서|...) and (\d{4}\.\d{2}). (respectively add_info, kind and date)
+        re_lst = re.findall(parser, values['report_nm'])[0]      # re_lst like... -> [('', '분기보고서', '2010.09')]
+        return re_lst[1]
+
+    @validator('date', always=True)
+    def get_date(cls, v, values):
+        parser = r'\[?(\w*)\]?(사업보고서|반기보고서|분기보고서|감사보고서|연결감사보고서).*\((\d{4}\.\d{2})\)'
+        # var parser is divided into 3 group which are (\w*), (사업보고서|반기보고서|...) and (\d{4}\.\d{2}). (respectively add_info, kind and date)
+        re_lst = re.findall(parser, values['report_nm'])[0]      # re_lst like... -> [('', '분기보고서', '2010.09')]
+        return datetime.strptime(re_lst[2], '%Y.%m')
+
+class RceptNoInfoProvider:      # client class
 
     def get_generator(self, corp_code, start, end) :
 
@@ -109,7 +125,8 @@ class RceptnoInfo:      # client class
         requesterF = RequesterF(corp_code, start, end)  # try the second F requester (to get recetpNoInfo for documentVersion 'F(감사보고서)')
         successor = jsonHandler(requesterF)     # the second handler which dosen't have a successor (that means the last handler)
         result = jsonHandler(requesterA, successor).handle_request()        # the first handler which has a successor handler
-        gen = (RepctNoInfo(**i) for i in result)    # comprehension to get a generator. ex. (dataclass1, dataclass2, ... , dataclass_n )
+        print(result[0])
+        gen = (RceptNoInfo(**i) for i in result)    # comprehension to get a generator. ex. (dataclass1, dataclass2, ... , dataclass_n )
 
         return gen
 
@@ -120,7 +137,7 @@ if __name__ == '__main__':
     start = '20100101'
     end = '20211130'
 
-    ri = RceptnoInfo()
+    ri = RceptNoInfoProvider()
     gen = ri.get_generator(corp_code, start, end)
 
     for i in enumerate(gen):

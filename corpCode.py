@@ -1,36 +1,34 @@
 from pathlib import Path
 from zipfile import ZipFile
 from io import BytesIO
-from dataclasses import dataclass
+from pydantic import BaseModel, validator
+from typing import Optional
 import requests
 from xml.etree.ElementTree import parse
 import sqlite3
 from tqdm import tqdm
+from datetime import datetime
 
-@dataclass
-class CorpCodeDC:
-    corpCode:str
-    corpName:str
-    stockCode:str
-    modifyDate:str
 
-    def __post_init__(self):
-        if self.corpCode == ' ':
-            self.corpCode = None
-        if self.corpCode :
-            self.corpCode = self.corpCode.replace("'", '')
-        if self.corpName == ' ':
-            self.corpName = None
-        if self.corpName :
-            self.corpName = self.corpName.replace("'", '')
-        if self.stockCode == ' ':
-            self.stockCode = None
-        if self.stockCode :
-            self.stockCode = self.stockCode.replace("'", '')
-        if self.modifyDate == ' ':
-            self.modifyDate = None
-        if self.modifyDate :
-            self.modifyDate = self.modifyDate.replace("'", '')
+class CorpCodeDC(BaseModel):
+    corp_code: Optional[str]
+    corp_name: Optional[str]
+    stock_code: Optional[str]
+    modify_date: Optional[datetime]
+
+    @validator('corp_code', 'corp_name', 'stock_code', pre=True, always=True)
+    def dealWithComma(cls, v):
+        if v == ' ':
+            return None
+        if v :
+            return v.replace("'", '')
+
+    @validator('modify_date', pre=True, always=True)
+    def to_datetime(cls, v):
+        if v == ' ':
+            return None
+        if v :
+            return  datetime.strptime(v.replace("'", ''), '%Y%m%d')
 
 
 class CorpCode:
@@ -56,7 +54,10 @@ class CorpCode:
         tree = parse(self.dir/'CORPCODE.xml')
         root = tree.getroot()
         list = root.findall("list")
-        dcs = [CorpCodeDC(x.findtext("corp_code"),x.findtext("corp_name"),x.findtext("stock_code"), x.findtext("modify_date")) for x in list]
+        dcs = [CorpCodeDC(corp_code = x.findtext("corp_code"), 
+                        corp_name = x.findtext("corp_name"), 
+                        stock_code = x.findtext("stock_code"), 
+                        modify_date = x.findtext("modify_date")) for x in list]
 
         return dcs
 
@@ -84,6 +85,5 @@ class CorpCode:
 
 if __name__ == '__main__':
     cc = CorpCode()
-    cc.downloadXmlFile()
-    cc.create_db()
-    # print(cc.get_dcs()[0])
+    data = cc.get_dcs()
+    print(data[:5])
