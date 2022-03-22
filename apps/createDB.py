@@ -122,8 +122,8 @@ def main():
     RceptNoInfoTable(db).operate()
     ConsolidatedDataTable(db).operate()
     NonConsolidatedDataTable(db).operate()
-    ConsolidatedReportTable(db).operate()
-    NonConsolidatedReportTable(db).operate()
+    # ConsolidatedReportTable(db).operate()
+    # NonConsolidatedReportTable(db).operate()
     db.close()
 
 

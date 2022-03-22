@@ -60,7 +60,7 @@ class Insert_ConsolidatedReport(InsertData):
 
     def operate(self, data):
         html = self.get_html(data.html)
-        values_part = formatter().get_values_part(HtmlDC(receptNo=data.receptNo, html=html))
+        values_part = formatter().get_values_part(HtmlDC(rceptNo=data.rceptNo, html=html))
         sql = f"insert into ConsolidatedReport values\
                 ({values_part})"
         self.db.cursor().execute(sql)
@@ -75,7 +75,7 @@ class Insert_NonConsolidatedReport(InsertData):
 
     def operate(self, data):
         html = self.get_html(data.html)
-        values_part = formatter().get_values_part(HtmlDC(receptNo=data.receptNo, html=html))
+        values_part = formatter().get_values_part(HtmlDC(rceptNo=data.rceptNo, html=html))
         sql = f"insert into NonConsolidatedReport values\
                 ({values_part})"
         self.db.cursor().execute(sql)
@@ -96,8 +96,8 @@ class formatter:
     def get_string_format(self, value):
 
         if type(value) == str:
-            value = value.replace("'", "\n'")
-            value = value.replace('"', '\n"')
+            value = value.replace("'", "\'")
+            value = value.replace('"', '\"')
             return f"'{value}'"
 
         elif type(value)==datetime:

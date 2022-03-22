@@ -61,18 +61,22 @@ class DataScrapToDB:
     def operate(self, lst):
         ic = Insert_ConsolidatedData(self.db)
         inc = Insert_NonConsolidatedData(self.db)
-        icr = Insert_ConsolidatedReport(self.db)
-        incr = Insert_NonConsolidatedReport(self.db)
+        # icr = Insert_ConsolidatedReport(self.db)
+        # incr = Insert_NonConsolidatedReport(self.db)
 
         nonExisted_lst = self.get_nonExisted_lst(lst)
 
-        for i in tqdm(nonExisted_lst, bar_format='{l_bar}{bar:20}{r_bar}{bar:-20b}'):
+        n = 0
+        total = len(nonExisted_lst)
+        for i in nonExisted_lst:
+            print(n, f'{n/total}', i, sep='\n')
+            
             fd = FundamentalData(i)
             ic.operate(fd.consolidatedData)
             inc.operate(fd.nonConsolidatedData)
-            icr.operate(fd.consolidatedHtml)
-            incr.operate(fd.nonConsolidatedHtml)
-
+            # icr.operate(fd.consolidatedHtml)
+            # incr.operate(fd.nonConsolidatedHtml)
+            n += 1
 
 def main():
     dbName = 'fundamentalData'
@@ -80,12 +84,15 @@ def main():
     
     # CorpCodeScrapToDB(db).operate()
 
-    corp_code = [data.corp_code for data in QueryTable(db).get(tableName='corpCode')]
-    start = '20100101'
-    end = '20211130'
-    RceptNoInfoScrapToDB(db).operate(corp_code, start, end)
+    # corp_code = [data.corp_code for data in QueryTable(db).get(tableName='corpCode')]
+    # start = '20100101'
+    # end = '20211130'
+    # RceptNoInfoScrapToDB(db).operate(corp_code, start, end)
 
-    # receptNos = ['20201116001840', '20100816001298', '20200928000281', '20180515001679']
+    rceptno_lst = list(set([data.rcept_no for data in QueryTable(db).get(tableName='rceptNoInfo')]))
+    # print(rceptno_lst[:1])
+    
+    DataScrapToDB(db).operate(rceptno_lst)
     # DataScrapToDB(db).operate(receptNos)
 
 

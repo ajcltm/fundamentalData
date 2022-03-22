@@ -1,9 +1,11 @@
 parentPath='c:/Users/ajcltm/PycharmProjects/fundamentalData'
 import sys
 sys.path.append(parentPath)
-from htmlScraper import values
-from htmlScraper import parserFormat
-from htmlScraper import report
+from dartScraper.reportNordParameter import ReportRequestParametersProvider
+from dartScraper.reportHtmlOfTables import ReportHtml
+from htmlScraper.parserFormat import reportParserFormat, valueParserFormat
+from htmlScraper.report import ReportSearcher
+from htmlScraper.values import ValueSearcher
 from pydantic import BaseModel
 from typing import Optional, Any
 
@@ -16,6 +18,8 @@ def get_unit(soup, parser_format_lst):
         lst = soup.find_all(string=re.compile(parser))
         if lst :
             unit_string = lst[0].find_all_next(string=re.compile('단위'))[0]
+            p = re.compile('[가-힣]*\s*원')
+            unit_string = p.findall(unit_string)[0]
             unit_string = unit_string.replace(' ', '').replace(')', '').split(':')[-1]
 
             unit = unit_dic.get(unit_string)
@@ -49,10 +53,10 @@ class NonConsolidatedData:
     def get_html(self, record = True):
         parser_format_1 = r'^[^가-힣]*재무제표$'
         parser_format_2 = r'.*재무제표 등$'
-        rrpp = report.ReportRequestParametersProvider(self.rceptNo)
+        rrpp = ReportRequestParametersProvider(self.rceptNo)
         consolidatedParams = rrpp.get_html(parser_format_1, parser_format_2)
         self.blackBox += rrpp.blackBox
-        rh = report.ReportHtml()
+        rh = ReportHtml()
         self.html = rh.get_html(consolidatedParams)
         if record == True:
             self.blackBox += rh.blackBox
@@ -64,18 +68,18 @@ class NonConsolidatedData:
 
         if html :
 
-            rp = parserFormat.reportParserFormat()
-            vp = parserFormat.valueParserFormat()
+            rp = reportParserFormat()
+            vp = valueParserFormat()
 
             parser_format_lst = rp.nonConsolidated_balance_sheet
-            rs = report.ReportSearcher(html)
+            rs = ReportSearcher(html)
             nonConsolidated_balance_sheet = rs.get_table(parser_format_lst)
             self.blackBox += rs.blackBox
 
             if nonConsolidated_balance_sheet:
                 unit = get_unit(html, parser_format_lst)
 
-                vs = values.ValueSearcher(nonConsolidated_balance_sheet)
+                vs = ValueSearcher(nonConsolidated_balance_sheet)
 
                 parserLst = vp.equity
                 value = vs.get_values(parserLst)
@@ -94,13 +98,13 @@ class NonConsolidatedData:
                 nonConsolidatedEquity, nonConsolidatedliability = None, None
 
             parser_format_lst = rp.nonConsolidated_income_statement
-            rs = report.ReportSearcher(html)
+            rs = ReportSearcher(html)
             nonConsolidated_income_statement = rs.get_table(parser_format_lst)
             self.blackBox += rs.blackBox
             if nonConsolidated_income_statement:
                 unit = get_unit(html, parser_format_lst)
 
-                vs = values.ValueSearcher(nonConsolidated_income_statement)
+                vs = ValueSearcher(nonConsolidated_income_statement)
 
                 parserLst = vp.netIncome
                 value = vs.get_values(parserLst)
@@ -128,13 +132,13 @@ class NonConsolidatedData:
                 nonConsolidatedNetIncome, nonConsolidatedGrossProfit, nonConsolidatedOperatingProfit = None, None, None
 
             parser_format_lst = rp.nonConsolidated_conprehensive_income_statement
-            rs = report.ReportSearcher(html)
+            rs = ReportSearcher(html)
             nonConsolidated_income_statement = rs.get_table(parser_format_lst)
             self.blackBox += rs.blackBox
             if nonConsolidated_income_statement:
                 unit = get_unit(html, parser_format_lst)
 
-                vs = values.ValueSearcher(nonConsolidated_income_statement)
+                vs = ValueSearcher(nonConsolidated_income_statement)
 
                 parserLst = vp.netIncome
                 value = vs.get_values(parserLst)
@@ -159,13 +163,13 @@ class NonConsolidatedData:
                 nonConsolidatedConprehensiveNetIncome, nonConsolidatedConprehensiveGrossProfit, nonConsolidatedConprehensiveOperatingProfit = None, None, None
 
             parser_format_lst = rp.nonConsolidated_cash_flow_statement
-            rs = report.ReportSearcher(html)
+            rs = ReportSearcher(html)
             nonConsolidated_cash_flow_statement = rs.get_table(parser_format_lst)
             self.blackBox += rs.blackBox
             if nonConsolidated_cash_flow_statement:
                 unit = get_unit(html, parser_format_lst)
 
-                vs = values.ValueSearcher(nonConsolidated_cash_flow_statement)
+                vs = ValueSearcher(nonConsolidated_cash_flow_statement)
                 parserLst = vp.operatingActivities
 
                 value = vs.get_values(parserLst)

@@ -4,6 +4,9 @@ sys.path.append(parentPath)
 from dbManagement.models import CorpCodeData, RceptNoInfo, ConsolidatedDataDC, NonConsolidatedDataDC, HtmlDC
 from typing import List
 from abc import abstractmethod
+from dbManagement.models import CorpCodeData, RceptNoInfo, ConsolidatedDataDC, NonConsolidatedDataDC, HtmlDC
+from typing import List
+from abc import abstractmethod
 
 
 
@@ -22,7 +25,7 @@ class QueryTable:
         if where:
             sql = f'select * from {tableName} {where}'
         else:
-            sql = f'select * from {tableName} where stock_code is not null'
+            sql = f'select * from {tableName}'
         c = self.db.cursor()
         c.execute(sql)
         data_class = self.dataDict.get(tableName)

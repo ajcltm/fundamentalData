@@ -47,6 +47,6 @@ class NonConsolidatedDataDC(BaseModel):
     nonConsolidatedOperatingActivities:Optional[int]
 
 class HtmlDC(BaseModel):
-    receptNo:str
+    rceptNo:str
     html:Optional[str]
 
