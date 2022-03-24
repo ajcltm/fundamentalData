@@ -79,6 +79,8 @@ class DataScrapToDB:
             n += 1
 
 def main():
+    import time
+
     dbName = 'fundamentalData'
     db = Connector().connect_db(dbName)
     
@@ -88,12 +90,18 @@ def main():
     # start = '20100101'
     # end = '20211130'
     # RceptNoInfoScrapToDB(db).operate(corp_code, start, end)
-
-    rceptno_lst = list(set([data.rcept_no for data in QueryTable(db).get(tableName='rceptNoInfo')]))
+    s = time.time()
+    # rceptno_lst = list(set([data.rcept_no for data in QueryTable(db).get(tableName='rceptNoInfo')]))
+    q = QueryTable(db).get(sql='select corp_name, rcept_no from rceptNoInfo')
+    print(list(q)[-2:])
+    # rceptno_lst = [data.rcept_no for data in QueryTable(db).get(tableName='rceptNoInfo')]
     # print(rceptno_lst[:1])
     
-    DataScrapToDB(db).operate(rceptno_lst)
+    # DataScrapToDB(db).operate(rceptno_lst)
     # DataScrapToDB(db).operate(receptNos)
+
+    e = time.time()
+    print(f'duration : {e -s} seconds')
 
 
 if __name__ == '__main__':

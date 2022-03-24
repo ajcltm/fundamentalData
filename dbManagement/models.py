@@ -50,3 +50,23 @@ class HtmlDC(BaseModel):
     rceptNo:str
     html:Optional[str]
 
+
+class MyMetaclass(type):
+    def __new__(cls, name, bases, dct):
+
+        model = super().__new__(
+            cls,
+            name,
+            bases,
+            dct
+        )
+        return model
+
+if __name__ == '__main__':
+    tableName = 'CorpCode' 
+    data = {'corp_name':'삼성전자', 'rcept_no': '005930'}
+    dynaminClass = type(tableName, (BaseModel,), data)
+    c1 = dynaminClass()
+    print(c1)
+
+
