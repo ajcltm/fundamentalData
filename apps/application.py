@@ -1,9 +1,5 @@
 parentPath='c:/Users/ajcltm/PycharmProjects/fundamentalData'
 import sys
-
-from numpy import where
-sys.path.append(parentPath)
-from dbManagement.queryDB import QueryTable
 sys.path.append(parentPath)
 from dbManagement.connectDB import Connector
 from dbManagement.queryDB import QueryTable
@@ -34,7 +30,7 @@ if __name__ == '__main__':
     # webbrowser.open_new_tab(filepath)
     dbName = 'fundamentalData'
     db = Connector().connect_db(dbName)
-    # rceptno_lst = list(set([data.rcept_no for data in QueryTable(db).get(tableName='rceptNoInfo')]))
-    # print(rceptno_lst[:15])
-    f = FundamentalData('20160816000963')
-    print(f.nonConsolidatedData)
+    q = QueryTable(db).get(sql='select corp_name, add_info from rceptNoInfo where rcept_no = 20100223000281')
+    print(list(q))
+    # f = FundamentalData('20120515001628')
+    # print(f.nonConsolidatedData)

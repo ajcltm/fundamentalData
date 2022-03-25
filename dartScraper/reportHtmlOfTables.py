@@ -6,6 +6,8 @@ class ReportHtml :
     blackBox = ''
 
     def get_html(self, detailReportParameter):
+        if not detailReportParameter:
+            return None
         url = f'http://dart.fss.or.kr/report/viewer.do?'
         r = requests.get(url, params=asdict(detailReportParameter[0]))
         html = r.text

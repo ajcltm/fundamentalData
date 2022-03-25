@@ -53,33 +53,51 @@ class DataScrapToDB:
     def __init__(self, connectedDB):
         self.db = connectedDB
 
-    def get_nonExisted_lst(self, lst):
-        data_lst = QueryTable(self.db).get(tableName='consolidatedData')
-        existed_lst = list(set([data.rceptNo for data in data_lst]))
-        return [i for i in lst if not i in existed_lst]
+    def get_nonExisted_index(self):
+        q = QueryTable(self.db).get(sql='select rceptNo from consolidatedData')
+        self.existed_lst = [i.rceptNo for i in q]
+
+        for i in self.lst:
+            if not i.rcept_no in self.existed_lst:
+                return self.lst.index(i)
+
+    def delete_edge_data(self, i):
+        _rcept_no = self.lst[i].rcept_no
+        c = self.db.cursor()
+        sql = f'delete from consolidatedData where rceptNo = {_rcept_no}'
+        c.execute(sql)
+        sql = f'delete from nonConsolidatedData where rceptNo = {_rcept_no}'
+        try :
+            c.execute(sql)
+        except:
+            pass
+        self.db.commit()
+
 
     def operate(self, lst):
+        self.lst = lst
+
         ic = Insert_ConsolidatedData(self.db)
         inc = Insert_NonConsolidatedData(self.db)
-        # icr = Insert_ConsolidatedReport(self.db)
-        # incr = Insert_NonConsolidatedReport(self.db)
 
-        nonExisted_lst = self.get_nonExisted_lst(lst)
+        i = self.get_nonExisted_index()
 
-        n = 0
-        total = len(nonExisted_lst)
-        for i in nonExisted_lst:
-            print(n, f'{n/total}', i, sep='\n')
-            
-            fd = FundamentalData(i)
+        if not i == 0:
+            self.delete_edge_data(i-1)
+            nonExisted_lst = lst[i-1:]
+        else:
+            nonExisted_lst = lst[i:]
+
+        n = 1
+        total = len(lst)
+        for w in nonExisted_lst:
+            print(f'{n+i-1}/{total}', w, sep='\n')
+            fd = FundamentalData(w.rcept_no)
             ic.operate(fd.consolidatedData)
             inc.operate(fd.nonConsolidatedData)
-            # icr.operate(fd.consolidatedHtml)
-            # incr.operate(fd.nonConsolidatedHtml)
             n += 1
 
 def main():
-    import time
 
     dbName = 'fundamentalData'
     db = Connector().connect_db(dbName)
@@ -90,18 +108,9 @@ def main():
     # start = '20100101'
     # end = '20211130'
     # RceptNoInfoScrapToDB(db).operate(corp_code, start, end)
-    s = time.time()
-    # rceptno_lst = list(set([data.rcept_no for data in QueryTable(db).get(tableName='rceptNoInfo')]))
-    q = QueryTable(db).get(sql='select corp_name, rcept_no from rceptNoInfo')
-    print(list(q)[-2:])
-    # rceptno_lst = [data.rcept_no for data in QueryTable(db).get(tableName='rceptNoInfo')]
-    # print(rceptno_lst[:1])
-    
-    # DataScrapToDB(db).operate(rceptno_lst)
-    # DataScrapToDB(db).operate(receptNos)
 
-    e = time.time()
-    print(f'duration : {e -s} seconds')
+    rceptno_lst = QueryTable(db).get(sql='select rcept_no, corp_name from rceptNoInfo where add_info != "첨부정정"')
+    DataScrapToDB(db).operate(list(rceptno_lst))
 
 
 if __name__ == '__main__':

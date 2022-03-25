@@ -17,15 +17,22 @@ def get_unit(soup, parser_format_lst):
     for parser in parser_format_lst : 
         lst = soup.find_all(string=re.compile(parser))
         if lst :
-            unit_string = lst[0].find_all_next(string=re.compile('단위'))[0]
+            try:
+                unit_string = lst[0].find_all_next(string=re.compile('단위'))[0]
+            except:
+                return 1
             p = re.compile('[가-힣]*\s*원')
-            unit_string = p.findall(unit_string)[0]
+            try:
+                unit_string = p.findall(unit_string)[0]
+            except:
+                return 1
             unit_string = unit_string.replace(' ', '').replace(')', '').split(':')[-1]
 
             unit = unit_dic.get(unit_string)
+            if not unit:
+                return 1
             return unit
-    unit = 1
-    return unit
+    return 1
 
 class HtmlDC(BaseModel):
     rceptNo:str
@@ -101,6 +108,7 @@ class NonConsolidatedData:
             rs = ReportSearcher(html)
             nonConsolidated_income_statement = rs.get_table(parser_format_lst)
             self.blackBox += rs.blackBox
+
             if nonConsolidated_income_statement:
                 unit = get_unit(html, parser_format_lst)
 
@@ -135,6 +143,7 @@ class NonConsolidatedData:
             rs = ReportSearcher(html)
             nonConsolidated_income_statement = rs.get_table(parser_format_lst)
             self.blackBox += rs.blackBox
+
             if nonConsolidated_income_statement:
                 unit = get_unit(html, parser_format_lst)
 
@@ -166,6 +175,7 @@ class NonConsolidatedData:
             rs = ReportSearcher(html)
             nonConsolidated_cash_flow_statement = rs.get_table(parser_format_lst)
             self.blackBox += rs.blackBox
+
             if nonConsolidated_cash_flow_statement:
                 unit = get_unit(html, parser_format_lst)
 
