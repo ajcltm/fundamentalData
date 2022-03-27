@@ -1,6 +1,9 @@
 from dataclasses import asdict
 import requests
 from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
+
+ua = UserAgent(use_cache_server=True)
 
 class ReportHtml :
     blackBox = ''
@@ -9,7 +12,7 @@ class ReportHtml :
         if not detailReportParameter:
             return None
         url = f'http://dart.fss.or.kr/report/viewer.do?'
-        r = requests.get(url, params=asdict(detailReportParameter[0]))
+        r = requests.get(url, params=asdict(detailReportParameter[0]), headers={'User-Agent' : str(ua.random)})
         html = r.text
         soup = BeautifulSoup(html, 'html.parser')
         table = soup.find_all('table')

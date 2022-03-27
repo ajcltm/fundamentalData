@@ -75,8 +75,10 @@ class ValueSearcher:
                 pass
             else:
                 for string in td.stripped_strings:
-                    if re.findall(r'^\(*[0-9]+', string): 
-                        return string
+                    string = string.replace(',','')
+                    numeric = re.findall(r'^\(*[0-9]+', string)
+                    if numeric: 
+                        return numeric[0]
         return None
 
     def get_unit(self, tr_tag):

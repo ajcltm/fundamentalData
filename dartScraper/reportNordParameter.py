@@ -6,6 +6,9 @@ from htmlScraper.nordParameter import ReportRequestParametersNode2, ReportReques
 import requests
 import time
 import random
+from fake_useragent import UserAgent
+
+ua = UserAgent(use_cache_server=True)
 
 class RandomSleep:
 
@@ -25,7 +28,7 @@ class ReportRequestParametersProvider :
     def get_html(self, parser_format_1, parser_format_2):
         RandomSleep().sleep()
         url = f'http://dart.fss.or.kr/dsaf001/main.do?rcpNo={self.receptNo}'
-        r = requests.get(url)
+        r = requests.get(url, headers={'User-Agent' : str(ua.random)})
         reportHtml = r.text
         parser1 = ReportRequestParametersNode2(reportHtml, parser_format_1)
         parser2 = ReportRequestParametersNode1(reportHtml, parser_format_2)
